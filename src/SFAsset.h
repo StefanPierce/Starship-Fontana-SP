@@ -36,6 +36,7 @@ public:
   virtual void      GoEast();
   virtual void      GoWest();
   virtual void      GoNorth();
+  virtual void      GoSouth(float speed);
   virtual void      SetNotAlive();
   virtual bool      IsAlive();
   virtual void      HandleCollision();

@@ -84,11 +84,10 @@ void SFAsset::OnRender() {
 
   Vector2 gs = (*(bbox->centre) + (*(bbox->extent_x) * -1)) + (*(bbox->extent_y) * -1);
   Vector2 ss = GameSpaceToScreenSpace(sf_window->getRenderer(), gs);
-  rect.x = ss.getX();
-  rect.y = ss.getY();
   rect.w = bbox->extent_x->getX() * 2;
   rect.h = bbox->extent_y->getY() * 2;
-
+  rect.x = ss.getX();
+  rect.y = ss.getY() - rect.h;
   // 2. Blit the sprite onto the level
   SDL_RenderCopy(sf_window->getRenderer(), sprite, NULL, &rect);
 }
@@ -113,9 +112,23 @@ void SFAsset::GoEast() {
 }
 
 void SFAsset::GoNorth() {
-  Vector2 c = *(bbox->centre) + Vector2(0.0f, 1.0f);
+  Vector2 c = *(bbox->centre) + Vector2(0.0f, 5.0f);
+  int w, h;
+  SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
+
+  if((!(c.getY() > h))||SFASSET_PLAYER != type) {
   bbox->centre.reset();
   bbox->centre = make_shared<Vector2>(c);
+  }
+}
+
+void SFAsset::GoSouth(float speed) {
+  Vector2 c = *(bbox->centre) + Vector2(0.0f, 0 - speed);
+
+  if((!(c.getY() < 0))||SFASSET_PLAYER != type) {
+  bbox->centre.reset();
+  bbox->centre = make_shared<Vector2>(c);
+  }
 }
 
 bool SFAsset::CollidesWith(shared_ptr<SFAsset> other) {
