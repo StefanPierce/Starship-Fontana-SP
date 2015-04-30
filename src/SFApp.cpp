@@ -27,7 +27,29 @@ SFApp::SFApp(std::shared_ptr<SFWindow> window) : fire(0), is_running(true), sf_w
   healthgreenpos.w = 26;
   healthgreenpos.x = healthpos.x + 3;
   healthgreenpos.y = healthpos.y + 3;
+  
+  gameoverpos.h = 400;
+  gameoverpos.w = 560;
+  gameoverpos.x = canvas_w / 2 - gameoverpos.w / 2;
+  gameoverpos.y = canvas_h / 2 - gameoverpos.h / 2;
 
+
+  d1 = IMG_LoadTexture(sf_window->getRenderer(), "assets/1.png");
+  d2 = IMG_LoadTexture(sf_window->getRenderer(), "assets/2.png");
+  d3 = IMG_LoadTexture(sf_window->getRenderer(), "assets/3.png");
+  d4 = IMG_LoadTexture(sf_window->getRenderer(), "assets/4.png");  
+  d5 = IMG_LoadTexture(sf_window->getRenderer(), "assets/5.png");
+  d6 = IMG_LoadTexture(sf_window->getRenderer(), "assets/6.png");
+  d7 = IMG_LoadTexture(sf_window->getRenderer(), "assets/7.png");
+  d8 = IMG_LoadTexture(sf_window->getRenderer(), "assets/8.png");
+  d9 = IMG_LoadTexture(sf_window->getRenderer(), "assets/9.png");
+  d0 = IMG_LoadTexture(sf_window->getRenderer(), "assets/0.png");
+  scorepos.w = 16;
+  scorepos.h = 16;
+  scorepos.x = 10;
+  scorepos.y = 10;
+
+  gameoverimage = IMG_LoadTexture(sf_window->getRenderer(), "assets/gameover.png");  
   background = IMG_LoadTexture(sf_window->getRenderer(), "assets/background.png");
   healthbar = IMG_LoadTexture(sf_window->getRenderer(), "assets/emptyhealth.png");
   healthgreen = IMG_LoadTexture(sf_window->getRenderer(), "assets/healthbar.png");
@@ -87,6 +109,9 @@ void SFApp::OnEvent(SFEvent& event) {
   case SFEVENT_RWALL:
     addWall(false);
     break;
+  case SFEVENT_RESET:
+    Reset();
+    break;
   }
 }
 
@@ -107,7 +132,7 @@ void SFApp::OnUpdateWorld() {
   
   
   if(gameover){
-  cout << "GAME OVER" << endl;
+  
   }else{
   // Handles Player movement
   if(up){
@@ -220,9 +245,7 @@ void SFApp::OnUpdateWorld() {
         if(score % 100 == 0 && score > 0){
            maxAliens++;
            alienspeed += 0.01f;
-           cout << "added aliens" << endl;
          }
-        cout << "Score: " << score << endl;
         if(score % 5 == 0 && score > 0){
         auto coin = make_shared<SFAsset>(SFASSET_COIN, sf_window);
   	auto pos  = a->GetPosition();
@@ -266,9 +289,7 @@ void SFApp::OnUpdateWorld() {
   // Detect collisions
   
   for(auto a : aliens) {
-    if(a->CollidesWith(player)){
-    gameover = true;
-    }
+    
     for(auto p : projectiles) {
       if(p->CollidesWith(a)) {
         p->HandleCollision();
@@ -277,9 +298,7 @@ void SFApp::OnUpdateWorld() {
         if(score % 100 == 0 && score > 0){
            maxAliens++;
            alienspeed += 0.01f;
-           cout << "added aliens" << endl;
          }
-        cout << "Score: " << score << endl;
         if(score % 5 == 0 && score > 0){
         auto coin = make_shared<SFAsset>(SFASSET_COIN, sf_window);
   	auto pos  = a->GetPosition();
@@ -296,9 +315,7 @@ void SFApp::OnUpdateWorld() {
          if(score % 100 == 0 && score > 0){
            alienspeed += 0.01f;
            maxAliens++;
-           cout << "added aliens" << endl;
          }
-	 cout << "Score: " << score << endl;
        }
     }
     if(a->GetPosition().getY() < 0){
@@ -381,7 +398,6 @@ void SFApp::OnUpdateWorld() {
 
 void SFApp::OnRender() {
   SDL_RenderClear(sf_window->getRenderer());
-
  
   SDL_RenderCopy(sf_window->getRenderer(), background, NULL, &back);
   SDL_RenderCopy(sf_window->getRenderer(), background, NULL, &back2);
@@ -405,12 +421,18 @@ void SFApp::OnRender() {
   for(auto e: explosions){
     e->OnRender();
   }
-
+  
+  DrawScore(std::to_string(score));
+  //  DrawScore("1723");
    // draw the player
   player->OnRender();
   
   SDL_RenderCopy(sf_window->getRenderer(), healthbar, NULL, &healthpos);
   SDL_RenderCopy(sf_window->getRenderer(), healthgreen, NULL, &healthgreenpos);
+  
+  if(gameover){
+      SDL_RenderCopy(sf_window->getRenderer(), gameoverimage, NULL, &gameoverpos);
+  }
   
   // Switch the off-screen buffer to be on-screen
   SDL_RenderPresent(sf_window->getRenderer());
@@ -421,6 +443,75 @@ void SFApp::FireProjectile() {
   auto v  = player->GetPosition();
   pb->SetPosition(v);
   projectiles.push_back(pb);
+}
+ 
+void SFApp::Reset(){
+  if(gameover){
+  aliens.clear();
+  currentAliens = 0;
+  score = 0;
+  coins.clear();
+  health = 100;
+  healthgreenpos.h = (444.0f/100)*health;
+  healthgreenpos.y = healthpos.y + 3 + (444-healthgreenpos.h);
+  alienspeed = 1.5f;
+  alientempspeed = alienspeed;
+  fastshoot = 0;
+  slowaliens = 0;
+  walls.clear();
+  noWalls = 0;
+  gameover = false;
+  }
+}
+
+void SFApp::DrawScore(string message){
+
+int tmp = 0;
+
+for(int i = 0; i < 7; i++){
+  if(message.length() - 1  < 6 - i){
+    SDL_RenderCopy(sf_window->getRenderer(), d0, NULL, &scorepos);
+    tmp ++;
+  }else if(message.length() > 0){
+  switch(message.at(i - tmp)){
+  case '0':
+      SDL_RenderCopy(sf_window->getRenderer(), d0, NULL, &scorepos);
+      break;
+  case '1':
+      SDL_RenderCopy(sf_window->getRenderer(), d1, NULL, &scorepos);
+      break;
+  case '2':
+      SDL_RenderCopy(sf_window->getRenderer(), d2, NULL, &scorepos);
+      break;
+  case '3':
+      SDL_RenderCopy(sf_window->getRenderer(), d3, NULL, &scorepos);
+      break;
+  case '4':
+      SDL_RenderCopy(sf_window->getRenderer(), d4, NULL, &scorepos);
+      break;
+  case '5':
+      SDL_RenderCopy(sf_window->getRenderer(), d5, NULL, &scorepos);
+      break;
+  case '6':
+      SDL_RenderCopy(sf_window->getRenderer(), d6, NULL, &scorepos);
+      break;
+  case '7':
+      SDL_RenderCopy(sf_window->getRenderer(), d7, NULL, &scorepos);
+      break;
+  case '8':
+      SDL_RenderCopy(sf_window->getRenderer(), d8, NULL, &scorepos);
+      break;
+  case '9':
+      SDL_RenderCopy(sf_window->getRenderer(), d9, NULL, &scorepos);
+      break;
+      }
+   }
+   
+   scorepos.x += 16;
+}
+
+scorepos.x = 10;
+
 }
 
 void SFApp::addWall(bool Left){

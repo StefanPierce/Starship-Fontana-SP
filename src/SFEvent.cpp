@@ -56,6 +56,9 @@ SFEvent::SFEvent(const SDL_Event & event) {
     case SDLK_w:
       code = SFEVENT_FIRE_RELEASED;
       break;
+    case SDLK_r:
+      code = SFEVENT_RESET;
+      break;
     }
     break;
   default:

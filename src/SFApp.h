@@ -27,6 +27,8 @@ public:
   void    OnRender();
   void    addWall(bool Left);
   void    FireProjectile();
+  void    Reset();
+  void    DrawScore(string message);
 private:
   SDL_Surface           * surface;
   bool                    is_running;
@@ -62,7 +64,18 @@ private:
   SDL_Texture               * background;
   SDL_Texture               * healthbar;
   SDL_Texture               * healthgreen;
-  SDL_Rect back, back2, healthpos, healthgreenpos;
+  SDL_Texture               * gameoverimage;
+  SDL_Texture               * d0;
+  SDL_Texture               * d1;
+  SDL_Texture               * d2;
+  SDL_Texture               * d3;
+  SDL_Texture               * d4;
+  SDL_Texture               * d5;
+  SDL_Texture               * d6;
+  SDL_Texture               * d7;
+  SDL_Texture               * d8;
+  SDL_Texture               * d9;
+  SDL_Rect back, back2, healthpos, healthgreenpos, gameoverpos, scorepos;
   SFError OnInit();
 };
 #endif

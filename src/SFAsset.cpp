@@ -18,30 +18,36 @@ SFAsset::SFAsset(SFASSETTYPE type, std::shared_ptr<SFWindow> window): type(type)
     sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/alien.png");
     break;
   case SFASSET_COIN:
-    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/coin.png");
     int gencoin;
     gencoin = rand() % 7;
     switch(gencoin){
     case 0:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/fastshoot.png");
     code = FASTSHOOT;
     break;
     case 1:
     code = HEALTH;
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/health.png");    
     break;
     case 2:
     code = SLOWALIENS;
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/slowaliens.png");
     break;
     case 3:
     code = CLEARALIENS;
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/killaliens.png");
     break;
     case 4:
     code = FASTSHOOT;
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/fastshoot.png");
     break;
     case 5:
     code = HEALTH;
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/health.png");
     break;
     case 6:
     code = SLOWALIENS;
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/slowaliens.png");
     break;
     }
     break;
