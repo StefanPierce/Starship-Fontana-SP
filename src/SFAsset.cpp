@@ -4,8 +4,10 @@ int SFAsset::SFASSETID=0;
 
 SFAsset::SFAsset(SFASSETTYPE type, std::shared_ptr<SFWindow> window): type(type), sf_window(window) {
   this->id   = ++SFASSETID;
-
   switch (type) {
+  case SFASSET_EXPLOSION:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/explosion.png");
+    break;
   case SFASSET_PLAYER:
     sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/player.png");
     break;
@@ -17,6 +19,34 @@ SFAsset::SFAsset(SFASSETTYPE type, std::shared_ptr<SFWindow> window): type(type)
     break;
   case SFASSET_COIN:
     sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/coin.png");
+    int gencoin;
+    gencoin = rand() % 7;
+    switch(gencoin){
+    case 0:
+    code = FASTSHOOT;
+    break;
+    case 1:
+    code = HEALTH;
+    break;
+    case 2:
+    code = SLOWALIENS;
+    break;
+    case 3:
+    code = CLEARALIENS;
+    break;
+    case 4:
+    code = FASTSHOOT;
+    break;
+    case 5:
+    code = HEALTH;
+    break;
+    case 6:
+    code = SLOWALIENS;
+    break;
+    }
+    break;
+  case SFASSET_WALL:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/wall.png");
     break;
   }
 
@@ -92,43 +122,43 @@ void SFAsset::OnRender() {
   SDL_RenderCopy(sf_window->getRenderer(), sprite, NULL, &rect);
 }
 
-void SFAsset::GoWest() {
-  Vector2 c = *(bbox->centre) + Vector2(-5.0f, 0.0f);
+void SFAsset::GoWest(float &speed) {
+  Vector2 c = *(bbox->centre) + Vector2(0 - speed, 0.0f);
   if(!(c.getX() < 0)) {
     bbox->centre.reset();
     bbox->centre = make_shared<Vector2>(c);
-  }
+  }else{speed = 0;}
 }
 
-void SFAsset::GoEast() {
+void SFAsset::GoEast(float &speed) {
   int w, h;
   SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 
-  Vector2 c = *(bbox->centre) + Vector2(5.0f, 0.0f);
+  Vector2 c = *(bbox->centre) + Vector2(speed, 0.0f);
   if(!(c.getX() > w)) {
     bbox->centre.reset();
     bbox->centre = make_shared<Vector2>(c);
-  }
+  }else{speed = 0;}
 }
 
-void SFAsset::GoNorth() {
-  Vector2 c = *(bbox->centre) + Vector2(0.0f, 5.0f);
+void SFAsset::GoNorth(float &speed) {
+  Vector2 c = *(bbox->centre) + Vector2(0.0f, speed);
   int w, h;
   SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 
   if((!(c.getY() > h))||SFASSET_PLAYER != type) {
   bbox->centre.reset();
   bbox->centre = make_shared<Vector2>(c);
-  }
+  }else{speed = 0;}
 }
 
-void SFAsset::GoSouth(float speed) {
+void SFAsset::GoSouth(float &speed) {
   Vector2 c = *(bbox->centre) + Vector2(0.0f, 0 - speed);
 
   if((!(c.getY() < 0))||SFASSET_PLAYER != type) {
   bbox->centre.reset();
   bbox->centre = make_shared<Vector2>(c);
-  }
+  }else{speed = 0;}
 }
 
 bool SFAsset::CollidesWith(shared_ptr<SFAsset> other) {
@@ -148,7 +178,19 @@ bool SFAsset::IsAlive() {
 }
 
 void SFAsset::HandleCollision() {
-  if(SFASSET_PROJECTILE == type || SFASSET_ALIEN == type) {
+  if(SFASSET_PROJECTILE == type || SFASSET_ALIEN == type || SFASSET_COIN == type || SFASSET_EXPLOSION) {
     SetNotAlive();
   }
+}
+
+COINTYPE SFAsset::getCode(){
+  return code;
+}
+
+void SFAsset::addtoCounter(){
+explosioncounter++;
+}
+
+int SFAsset::getCounter(){
+return explosioncounter;
 }
